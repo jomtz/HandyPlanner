@@ -1,3 +1,5 @@
+package com.josmartinez.handyplanner
+
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
