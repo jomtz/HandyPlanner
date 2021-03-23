@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.josmartinez.handyplanner.R
 import com.josmartinez.handyplanner.Task
+import com.josmartinez.handyplanner.TaskListViewModel
 
 
 private const val TAG = "TaskListFragment"
@@ -19,15 +21,12 @@ private const val TAG = "TaskListFragment"
 class TaskListFragment : Fragment() {
 
     private lateinit var taskRecyclerView: RecyclerView
+    private var adapter: TaskAdapter? = TaskAdapter(emptyList())
 
     private val taskListViewModel: TaskListViewModel by lazy {
         ViewModelProvider(this).get(TaskListViewModel::class.java)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, "Total tasks: ${taskListViewModel.tasks.size}")
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,17 +35,27 @@ class TaskListFragment : Fragment() {
     ): View?{
         val view = inflater.inflate(R.layout.fragment_task_list, container, false)
 
-        taskRecyclerView =
-            view.findViewById(R.id.list_recycler_view) as RecyclerView
+        taskRecyclerView = view.findViewById(R.id.list_recycler_view) as RecyclerView
         taskRecyclerView.layoutManager = LinearLayoutManager(context)
-
-        updateUI()
-
+        taskRecyclerView.adapter = adapter
         return view
     }
 
-    private fun updateUI() {
-        val tasks = taskListViewModel.tasks
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        taskListViewModel.taskListLiveData.observe(
+            viewLifecycleOwner,
+            Observer { tasks ->
+                tasks?.let {
+                    Log.i(TAG, "Got tasks ${tasks.size}")
+                    updateUI(tasks)
+                }
+            }
+        )
+    }
+
+
+    private fun updateUI(tasks: List<Task>) {
         taskRecyclerView.adapter = TaskAdapter(tasks)
     }
 

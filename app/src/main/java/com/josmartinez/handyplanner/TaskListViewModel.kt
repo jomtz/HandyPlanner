@@ -5,5 +5,5 @@ import androidx.lifecycle.ViewModel
 class TaskListViewModel : ViewModel(){
 
     private val taskRepository = TaskRepository.get()
-    val tasks = taskRepository.getTasks()
+    val taskListLiveData = taskRepository.getTasks()
 }

@@ -1,6 +1,7 @@
 package com.josmartinez.handyplanner
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.room.Room
 import androidx.room.Room.databaseBuilder
 import com.josmartinez.handyplanner.database.TaskDatabase
@@ -10,7 +11,6 @@ private const val DATABASE_NAME = "crime-database"
 
 class TaskRepository private constructor(context: Context) {
 
-
     private val database : TaskDatabase = databaseBuilder(
         context.applicationContext,
         TaskDatabase::class.java,
@@ -19,9 +19,9 @@ class TaskRepository private constructor(context: Context) {
 
     private val taskDao = database.taskDao()
 
-    fun getTasks(): List<Task> = taskDao.getTasks()
+    fun getTasks(): LiveData<List<Task>> = taskDao.getTasks()
 
-    fun getTask(id: UUID) : Task? = taskDao.getTask(id)
+    fun getTask(id: UUID) : LiveData<Task?> = taskDao.getTask(id)
 
 
     companion object {
