@@ -2,7 +2,6 @@ package com.josmartinez.handyplanner
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.room.Room
 import androidx.room.Room.databaseBuilder
 import com.josmartinez.handyplanner.database.TaskDatabase
 import java.util.*
