@@ -1,5 +1,6 @@
 package com.josmartinez.handyplanner
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,11 +12,22 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
+import javax.security.auth.callback.Callback
 
 
 private const val TAG = "TaskListFragment"
 
 class TaskListFragment : Fragment() {
+
+    /**
+     * Required interface to hosting activities
+     */
+    interface Callbacks {
+        fun onTaskSelected(taskId: UUID)
+    }
+
+    private var callbacks: Callbacks? = null
 
     private lateinit var taskRecyclerView: RecyclerView
     private var adapter: TaskAdapter? = TaskAdapter(emptyList())
@@ -24,6 +36,10 @@ class TaskListFragment : Fragment() {
         ViewModelProvider(this).get(TaskListViewModel::class.java)
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +67,11 @@ class TaskListFragment : Fragment() {
         )
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
 
     private fun updateUI(tasks: List<Task>) {
         taskRecyclerView.adapter = TaskAdapter(tasks)
@@ -76,7 +97,7 @@ class TaskListFragment : Fragment() {
         }
 
         override fun onClick(v: View?) {
-            Toast.makeText(context, "${task.title} pressed!", Toast.LENGTH_SHORT).show()
+            callbacks?.onTaskSelected(task.id)
         }
 
     }
