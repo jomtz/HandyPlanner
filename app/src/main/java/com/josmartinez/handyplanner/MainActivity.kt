@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), TaskListFragment.Callbacks{
     }
 
     override fun onTaskSelected(taskId: UUID) {
-        val fragment = TaskFragment()
+        val fragment = TaskFragment.newInstance(taskId)
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, fragment)

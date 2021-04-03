@@ -3,6 +3,7 @@ package com.josmartinez.handyplanner
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,18 +11,30 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import java.util.*
+import androidx.lifecycle.Observer
+import java.util.List.of
+
+private const val TAG = "TaskFragment"
+private const val ARG_TASK_ID = "task_id"
 
 class TaskFragment : Fragment() {
 
     private lateinit var task : Task
     private lateinit var titleField : EditText
     private lateinit var dateButton: Button
-    private lateinit var solvedCheckBox: CheckBox
+    private lateinit var completedCheckBox: CheckBox
+
+    private val taskDetailViewModel: TaskDetailViewModel by lazy {
+        ViewModelProvider(this).get(TaskDetailViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         task = Task()
+        val taskId: UUID =arguments?.getSerializable(ARG_TASK_ID) as UUID
+        taskDetailViewModel.loadTask(taskId)
     }
 
     override fun onCreateView(
@@ -33,13 +46,25 @@ class TaskFragment : Fragment() {
 
         titleField = view.findViewById(R.id.task_title) as EditText
         dateButton = view.findViewById(R.id.task_date) as Button
-        solvedCheckBox = view.findViewById(R.id.task_completed) as CheckBox
+        completedCheckBox = view.findViewById(R.id.task_completed) as CheckBox
 
         dateButton.apply {
             text = task.date.toString()
             isEnabled = false
         }
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        taskDetailViewModel.taskLiveData.observe(
+            viewLifecycleOwner,
+            Observer { task ->
+                task?.let {
+                    this.task = task
+                    updateUI()
+                }
+            })
     }
 
     override fun onStart() {
@@ -71,11 +96,37 @@ class TaskFragment : Fragment() {
 
         titleField.addTextChangedListener(titleWatcher)
 
-        solvedCheckBox.apply {
+        completedCheckBox.apply {
             setOnCheckedChangeListener{_, isChecked ->
                 task.isCompleted = isChecked
             }
         }
 
     }
+
+    override fun onStop() {
+        super.onStop()
+        taskDetailViewModel.saveTask(task)
+    }
+
+    private fun updateUI(){
+        titleField.setText(task.title)
+        dateButton.text = task.date.toString()
+        completedCheckBox.apply {
+            isChecked = task.isCompleted
+            jumpDrawablesToCurrentState()
+        }
+    }
+
+    companion object{
+        fun newInstance(taskId: UUID): TaskFragment {
+            val args = Bundle().apply {
+                putSerializable(ARG_TASK_ID, taskId)
+            }
+            return TaskFragment().apply {
+                arguments = args
+            }
+        }
+    }
+
 }
