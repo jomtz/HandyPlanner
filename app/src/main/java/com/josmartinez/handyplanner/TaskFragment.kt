@@ -18,6 +18,7 @@ import java.util.List.of
 
 private const val TAG = "TaskFragment"
 private const val ARG_TASK_ID = "task_id"
+private const val DIALOG_DATE = "DialogDate"
 
 class TaskFragment : Fragment() {
 
@@ -48,10 +49,6 @@ class TaskFragment : Fragment() {
         dateButton = view.findViewById(R.id.task_date) as Button
         completedCheckBox = view.findViewById(R.id.task_completed) as CheckBox
 
-        dateButton.apply {
-            text = task.date.toString()
-            isEnabled = false
-        }
         return view
     }
 
@@ -99,6 +96,12 @@ class TaskFragment : Fragment() {
         completedCheckBox.apply {
             setOnCheckedChangeListener{_, isChecked ->
                 task.isCompleted = isChecked
+            }
+
+            dateButton.setOnClickListener{
+                DatePickerFragment.newInstance(task.date).apply {
+                    show(this@TaskFragment.parentFragmentManager, DIALOG_DATE)
+                }
             }
         }
 
