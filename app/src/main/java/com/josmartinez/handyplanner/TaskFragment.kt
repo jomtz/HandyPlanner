@@ -19,8 +19,9 @@ import java.util.List.of
 private const val TAG = "TaskFragment"
 private const val ARG_TASK_ID = "task_id"
 private const val DIALOG_DATE = "DialogDate"
+private const val REQUEST_DATE = 0
 
-class TaskFragment : Fragment() {
+class TaskFragment : Fragment(), DatePickerFragment.Callbacks {
 
     private lateinit var task : Task
     private lateinit var titleField : EditText
@@ -100,6 +101,7 @@ class TaskFragment : Fragment() {
 
             dateButton.setOnClickListener{
                 DatePickerFragment.newInstance(task.date).apply {
+                    setTargetFragment(this@TaskFragment, REQUEST_DATE)
                     show(this@TaskFragment.parentFragmentManager, DIALOG_DATE)
                 }
             }
@@ -110,6 +112,12 @@ class TaskFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         taskDetailViewModel.saveTask(task)
+    }
+
+
+    override fun onDateSelected(date: Date) {
+        task.date = date
+        updateUI()
     }
 
     private fun updateUI(){
