@@ -3,17 +3,13 @@ package com.josmartinez.handyplanner
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
-import javax.security.auth.callback.Callback
 
 
 private const val TAG = "TaskListFragment"
@@ -39,6 +35,11 @@ class TaskListFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as Callbacks?
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -72,6 +73,22 @@ class TaskListFragment : Fragment() {
         callbacks = null
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_task_list, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.new_task -> {
+                val task = Task()
+                taskListViewModel.addTask(task)
+                callbacks?.onTaskSelected(task.id)
+                true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
 
     private fun updateUI(tasks: List<Task>) {
         taskRecyclerView.adapter = TaskAdapter(tasks)
